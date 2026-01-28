@@ -46,19 +46,27 @@ with kpi3:
 
 st.divider()
 
+
 col1 , col2  = st.columns(2)
 
 with col1 : 
-    st.header("Most Liked Posts")
-    st.bar_chart(get_most_liked_post())
+    container1 = st.container(border=True)
+    with container1:
+        st.header("Most Liked Posts")
+        st.bar_chart(get_most_liked_post())
     
-    st.divider()
-    st.header("Top Posts Per Day")  
-    day = st.date_input("select day : ")
-    if day :
-        st.bar_chart(get_most_liked_post_per_day(day))
+    
+    container2 = st.container(border=True)
+    with container2 :
+        st.header("Top Posts Per Day")  
+        day = st.date_input("select day : ")
+        if day :
+            st.bar_chart(get_most_liked_post_per_day(day))
 
 
 
 with col2 :
-    st.header("Most Liked Posts")
+    container3 = st.container(border=True)
+    with container3 : 
+        st.header("Most Active Users")
+        st.bar_chart(get_most_active_users())

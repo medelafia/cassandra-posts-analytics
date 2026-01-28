@@ -10,16 +10,15 @@ nb_users = 20
 nb_posts = 20 
 fake = Faker()
 
+
 cluster = Cluster(['localhost'] , port=9042) 
 session = cluster.connect() 
 
 
-#################################################################################
+######################################################## #########################
 ###############            initializing schema                  #################
 #################################################################################
 def init_database(insert_data=False) : 
-
-    
     session.execute("""
         CREATE KEYSPACE IF NOT EXISTS demo WITH replication = {
             'class' : 'SimpleStrategy' , 
@@ -67,6 +66,13 @@ def init_database(insert_data=False) :
             PRIMARY KEY ((day), post_id)
         )
     """)
+    session.execute("""
+        CREATE TABLE IF NOT EXISTS user_likes (
+            user_id uuid PRIMARY KEY,
+            likes counter
+        )
+    """)
+
 
     if insert_data :
         users_pstatement = session.prepare("INSERT INTO users (user_id , full_name ,age) VALUES (?,?,?)")
@@ -107,11 +113,14 @@ def insert_event(event) :
     prepared_statement = session.prepare("INSERT INTO demo.likes (post_id , event_time , user_id) VALUES (?,?,?)") 
     prepared_statement_1 = session.prepare("UPDATE demo.likes_count_by_post SET likes = likes + 1 WHERE post_id = ?") 
     prepared_statement_2 = session.prepare("UPDATE demo.likes_by_day SET likes = likes + 1 WHERE day=? AND post_id=?")
+    prepared_statement_3 = session.prepare("UPDATE demo.user_likes  SET likes = likes + 1 WHERE user_id=?")
+
 
 
     session.execute(prepared_statement , [uuid.UUID(event['post_id']) , datetime.datetime.now() , uuid.UUID(event['user_id'])])
     session.execute(prepared_statement_1 , [uuid.UUID(event['post_id'])])
     session.execute(prepared_statement_2 , [ datetime.date.today() , uuid.UUID(event['post_id'])])
+    session.execute(prepared_statement_3 , [ uuid.UUID(event['user_id'])])
 
 
 #################################################################################
@@ -146,7 +155,17 @@ def get_most_liked_post_per_day(day) :
     df = pd.DataFrame(values , columns)
     return df 
 
+def get_most_active_users() : 
+    res = session.execute("SELECT user_id , likes FROM user_likes")
+    res = sorted(res, key=lambda x: x.likes, reverse=True)
+    values = [] 
+    columns = []
+    for row in res[:5]: 
+        values.append(row.likes) 
+        columns.append(str(row.user_id))
 
+    df = pd.DataFrame(values , columns)
+    return df 
 
 
 ###############################################
