@@ -18,8 +18,6 @@ def start_consuming() :
     try :
         for data in consumer : 
             event = data.value
-
-            print("Founded : " , event)
             insert_event({'user_id' : event['user_id'] , 'post_id' : event['post_id']})
     except InterruptedError : 
         print("Stop consuming")

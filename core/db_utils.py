@@ -14,11 +14,11 @@ cluster = Cluster(['localhost'] , port=9042)
 session = cluster.connect() 
 
 
-
+#################################################################################
+###############            initializing schema                  #################
+#################################################################################
 def init_database(insert_data=False) : 
-    """
-        this Function responsible for initializing schema
-    """
+
     
     session.execute("""
         CREATE KEYSPACE IF NOT EXISTS demo WITH replication = {
@@ -81,6 +81,9 @@ def init_database(insert_data=False) :
         for _ in range(nb_posts ) : 
             session.execute(posts_pstatement , (uuid.uuid4() , fake.text(max_nb_chars=100) ,uuids[random.randint(0 , len(uuids) - 1)] )) 
         
+#################################################################################
+##################      Getting existing posts and users    #####################
+#################################################################################
 
 def get_users_uuids() : 
     res = session.execute("SELECT * FROM demo.users") ; 
@@ -96,6 +99,10 @@ def get_posts_uuids() :
         data.append(row.post_id) 
     return data
 
+
+#################################################################################
+################        Insert Event (Like) to different tables  ################
+#################################################################################
 def insert_event(event) : 
     prepared_statement = session.prepare("INSERT INTO demo.likes (post_id , event_time , user_id) VALUES (?,?,?)") 
     prepared_statement_1 = session.prepare("UPDATE demo.likes_count_by_post SET likes = likes + 1 WHERE post_id = ?") 
@@ -105,6 +112,11 @@ def insert_event(event) :
     session.execute(prepared_statement , [uuid.UUID(event['post_id']) , datetime.datetime.now() , uuid.UUID(event['user_id'])])
     session.execute(prepared_statement_1 , [uuid.UUID(event['post_id'])])
     session.execute(prepared_statement_2 , [ datetime.date.today() , uuid.UUID(event['post_id'])])
+
+
+#################################################################################
+###########    Queries that's get some statistics , just for testing    #########
+#################################################################################
 
 def get_most_liked_post() : 
     res = session.execute("SELECT post_id, likes FROM likes_count_by_post")
@@ -134,6 +146,12 @@ def get_most_liked_post_per_day(day) :
     df = pd.DataFrame(values , columns)
     return df 
 
+
+
+
+###############################################
+#######     Getting Entities count   ##########
+###############################################
 def get_total_likes() : 
     res = session.execute("SELECT count(post_id) as count FROM demo.likes") 
     for row in res : 

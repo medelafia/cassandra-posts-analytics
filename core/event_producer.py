@@ -23,7 +23,7 @@ def start_producing() :
                     'user_id' : str(user_uuids[random.randint(0 , len(user_uuids) - 1 )]) , 
                     'post_id' : str(post_uuids[random.randint(0 , len(post_uuids) - 1 )])
                     }
-            print("Producing : " , data)
+            
             producer.send(TOPIC , value=data)
             time.sleep(0.5)
     except InterruptedError : 
