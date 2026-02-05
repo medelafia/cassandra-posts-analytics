@@ -6,7 +6,7 @@ TOPIC="likes-topic"
 
 consumer = KafkaConsumer(
     TOPIC , 
-     bootstrap_servers=['localhost:9092'],
+    bootstrap_servers=['localhost:9092'],
     group_id='my_consumer_group',     # Manages offsets for the group
     auto_offset_reset='earliest',     # Start from beginning if no offset exists
     enable_auto_commit=True,          # Automatically mark messages as read
@@ -19,7 +19,7 @@ def start_consuming() :
         for data in consumer : 
             event = data.value
             insert_event({'user_id' : event['user_id'] , 'post_id' : event['post_id']})
-    except InterruptedError : 
-        print("Stop consuming")
+    except Exception as e : 
+        print("Consumer Stopped due to :" , e )
     finally : 
         consumer.close() 

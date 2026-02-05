@@ -1,6 +1,7 @@
 import streamlit as st 
 from threading import Thread 
 from core.db_utils import init_database
+import matplotlib.pyplot as plt
 
 init_database(insert_data=False)
 
@@ -33,6 +34,8 @@ st.markdown(
 
 st.divider()
 
+
+colors = ["#4e79a7" ,  '#f28e2b' , '#59a14f', '#e15759' , '#b07aa1']
 kpi1, kpi2, kpi3 = st.columns(3)
 
 with kpi1:
@@ -52,21 +55,48 @@ col1 , col2  = st.columns(2)
 with col1 : 
     container1 = st.container(border=True)
     with container1:
-        st.header("Most Liked Posts")
-        st.bar_chart(get_most_liked_post())
-    
+        most_liked_post = get_most_liked_post()
+        print(most_liked_post)
+        st.header("👍 Most Liked Posts")
+        # Plot
+        fig, ax = plt.subplots()
+        ax.bar(most_liked_post["id"], most_liked_post["value"], color=colors)
+        ax.set_xlabel("Post ID")
+        ax.set_ylabel("Likes Count")
+        ax.set_title("Bar Chart with Custom Colors")
+        plt.xticks(rotation=45, ha="right")
+
+        st.pyplot(fig)
     
     container2 = st.container(border=True)
     with container2 :
-        st.header("Top Posts Per Day")  
+        st.header("📅📊 Top Posts Per Day")  
         day = st.date_input("select day : ")
         if day :
-            st.bar_chart(get_most_liked_post_per_day(day))
+            most_liked_post_per_day = get_most_liked_post_per_day(day)
+
+            fig, ax = plt.subplots()
+            ax.bar(most_liked_post_per_day["id"], most_liked_post_per_day["value"], color=colors)
+            ax.set_xlabel("Post ID")
+            ax.set_ylabel("Likes count")
+            ax.set_title("Bar Chart with Custom Colors")
+            plt.xticks(rotation=45, ha="right")
+
+            st.pyplot(fig)
 
 
 
 with col2 :
     container3 = st.container(border=True)
     with container3 : 
-        st.header("Most Active Users")
-        st.bar_chart(get_most_active_users())
+        most_active_users = get_most_active_users() 
+        st.header("👤📈 Most Active Users")
+
+        fig, ax = plt.subplots()
+        ax.bar(most_active_users["id"], most_active_users["value"], color=colors)
+        ax.set_xlabel("User ID")
+        ax.set_ylabel("Likes count")
+        ax.set_title("Bar Chart with Custom Colors")
+        plt.xticks(rotation=45, ha="right")
+
+        st.pyplot(fig)       

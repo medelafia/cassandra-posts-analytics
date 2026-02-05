@@ -18,15 +18,15 @@ post_uuids = get_posts_uuids()
 def start_producing() :
     print("Producing thread started...")
     try :
-        for i in range(1000):
+        for i in range(10000):
             data = { 
                     'user_id' : str(user_uuids[random.randint(0 , len(user_uuids) - 1 )]) , 
                     'post_id' : str(post_uuids[random.randint(0 , len(post_uuids) - 1 )])
                     }
             
             producer.send(TOPIC , value=data)
-            time.sleep(0.5)
-    except InterruptedError : 
-        print("Stoppig producing")
+            time.sleep(0.01)
+    except Exception as e : 
+        print("Producer Stopped due to :" ,e)
     finally : 
         producer.close()

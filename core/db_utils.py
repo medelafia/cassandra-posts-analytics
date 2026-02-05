@@ -136,8 +136,11 @@ def get_most_liked_post() :
         values.append(row.likes) 
         columns.append(str(row.post_id))
     
-
-    df = pd.DataFrame(values , columns)
+    data = { 
+        "id" : columns , 
+        "value" : values 
+    }
+    df = pd.DataFrame(data )
     return df 
 
 
@@ -152,7 +155,11 @@ def get_most_liked_post_per_day(day) :
     for row in res[:5]: 
         values.append(row.likes) 
         columns.append(str(row.post_id))
-    df = pd.DataFrame(values , columns)
+    data = { 
+        "id" : columns , 
+        "value" : values 
+    }
+    df = pd.DataFrame(data )
     return df 
 
 def get_most_active_users() : 
@@ -164,7 +171,11 @@ def get_most_active_users() :
         values.append(row.likes) 
         columns.append(str(row.user_id))
 
-    df = pd.DataFrame(values , columns)
+    data = { 
+        "id" : columns , 
+        "value" : values 
+    }
+    df = pd.DataFrame(data )
     return df 
 
 
